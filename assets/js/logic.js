@@ -33,7 +33,32 @@ let sfxWrong = new Audio("assets/sfx/incorrect.wav");
 
 // The startGame function is called when the start button is clicked
 function questionClick() {
-    alert("question was clicked")
+    if(this.value !== questions[currentQuestionIndex].answer) {
+        time -=15;
+
+    if (time < 0) {
+        time = 0;
+    }    
+    timerElement.textContent = time;   
+    sfxWrong.play();
+    feedbackElement.textContent = "Wrong!";
+    } else {
+        sfxCorrect.play();
+        feedbackElement.textContent = "Correct!";
+    }
+
+    feedbackElement.setAttribute("class", "feedback");
+
+    setTimeout(function() {
+        feedbackElement.setAttribute("class", "feedback hide");
+    }, 1000);
+
+    currentQuestionIndex++;
+    if (currentQuestionIndex === questions.length) {
+        quizEnd()
+    } else {
+        getQuestion();
+    }
 }
 
 function getQuestion() {
@@ -75,7 +100,7 @@ function clockTick() {
     time--;
     timerElement.textContent = time;
 
-    if (time === 0) {
+    if (time <= 0) {
         quizEnd();
     }
 }
@@ -98,6 +123,27 @@ function startQuiz() {
 
 }
 
+function saveHighScore() {
+    let initials = initialsElement.value.trim();
+
+    if (initials !== "") {
+        let highScores = JSON.parse(localStorage.getItem("highscores")) || [];
+        let newScore = {
+            score: time,
+            initials: initials,
+        }
+        highScores.push(newScore);
+        localStorage.setItem("highscores", JSON.stringify(highScores));
+
+        window.location.href = "highscores.html";
+    }
+}
+
+function checkForEnter(event) {
+    if(event.key === "Enter") {
+        saveHighScore();
+    }
+}
 startButton.addEventListener("click", startQuiz) 
 
 
